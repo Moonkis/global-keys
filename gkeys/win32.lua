@@ -20,6 +20,7 @@ ffi.cdef([[
 	typedef unsigned int* UINT_PTR;
 	typedef int BOOL;
 	typedef const char* LPCSTR;
+	typedef char* LPTSTR;
 
 	typedef UINT_PTR WPARAM;
 	typedef LONG_PTR LPARAM;
@@ -59,6 +60,9 @@ ffi.cdef([[
 	BOOL GetMessageA(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax);
 	BOOL TranslateMessage(const MSG* lpMsg);
 	LRESULT DispatchMessageA(const MSG* lpMsg);
+
+	BOOL GetKeyNameTextA(LONG lParam, LPTSTR lpString, int cchSize);
+
 ]])
 
 local win32 = setmetatable({
@@ -66,7 +70,8 @@ local win32 = setmetatable({
 	WH_KEYBOARD_LL = 13,
 	GetMessage = ffi.C.GetMessageA,
 	SetWindowsHookEx = ffi.C.SetWindowsHookExA,
-	DispatchMessage = ffi.C.DispatchMessageA
+	DispatchMessage = ffi.C.DispatchMessageA,
+	GetKeyNameText = ffi.C.GetKeyNameTextA
 }, {
 	__index = ffi.C
 })

@@ -23,7 +23,23 @@ local hook = win32.SetWindowsHookEx(win32.WH_KEYBOARD_LL,
 			local kbdStruct = ffi.cast("KBDLLHOOKSTRUCT*", lParam)
 
 			local code = kbdStruct.vkCode
-			local name = keymap[code]
+
+			-- Find the keyname from the scancode
+			local bit = require("bit")
+			local c_str = ffi.new("char[?]", 256)
+			local extended = bit.band(kbdStruct.flags, bit.tobit(0x01))
+			local scanCode = kbdStruct.scanCode
+			scanCode = (extended == 1) and bit.bor(scanCode, bit.tobit(0x100)) or scanCode
+
+			if extended == 1 then
+				-- If it's an extended key, set the extended bit
+				scanCode = bit.bor(scanCode, bit.tobit(0x100))
+			end
+
+			local result = win32.GetKeyNameText(bit.lshift(scanCode, 16), c_str, ffi.sizeof(c_str));
+
+			-- Let the keymap override it if possible
+			local name 	= keymap[code] or ffi.string(c_str)
 
 			keys:push({down, name, code})
 		end
